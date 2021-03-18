@@ -1,0 +1,2 @@
+# SimpleAsteriskContact2XML
+Asterisk/FreePBXのContactをXMLに吐き出すツール(GrandStreamのみ対応)
