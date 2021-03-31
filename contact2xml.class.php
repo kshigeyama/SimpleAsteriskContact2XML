@@ -8,7 +8,7 @@
  */
 
 class createXMLPhoneBook_gs extends XMLPhoneBook {
-    public function fetchData( $FORCE_FLAG = 0 ){
+    public function fetchData( $FORCE_FLAG = 0 , $MODE1 = 0 ){
         global $FILENAME, $ACCOUNTIDX;
 
         $oResult1 = $this->getGroup();
@@ -36,7 +36,12 @@ class createXMLPhoneBook_gs extends XMLPhoneBook {
         for ($row = 0 ; $row < $numrows2 ; $row++) {
             if (!is_null($oResult2[$row][0])) {
                 $directoryEntry = $xml -> addChild('Contact');
-                $directoryEntry -> addChild('LastName', $oResult2[$row][0]);
+                if( $MODE1 == 0 ){
+                    $directoryEntry -> addChild('LastName', $oResult2[$row][0]);
+                } elseif( $MODE1 == 1 ){
+                    $directoryEntry -> addChild('LastName', $oResult2[$row][4]);
+                    $directoryEntry -> addChild('FirstName', $oResult2[$row][5]);
+                }
                 $directoryEntry -> addChild('Group', $oResult2[$row][2]);
                 $directoryPhone  = $directoryEntry -> addChild('Phone');
                 $directoryPhone -> addAttribute('Type', $this->PhoneTypeConvert($oResult2[$row][3]));
@@ -116,13 +121,13 @@ class XMLPhoneBook{
         }
     }
 
-    public function getXML( $FORCE_FLAG = 0 ){
+    public function getXML( $FORCE_FLAG = 0 , $MODE1 = 0 ){
         global $FILENAME;
         if( $this->cacheCheck( $FORCE_FLAG ) ){
             $xml = file_get_contents( $FILENAME );
             return ($xml); 
         } else {
-            return $this->fetchData();
+            return $this->fetchData( $FORCE_FLAG , $MODE1 );
         }
     }
 
@@ -137,9 +142,12 @@ class XMLPhoneBook{
         global $db;
         $sql = "
             SELECT
-                    contactmanager_group_entries.displayname AS 'name'
-                    ,contactmanager_entry_numbers.number AS 'extension' , contactmanager_groups.id as 'gid'
-                    , contactmanager_entry_numbers.type as 'teltype'
+                     contactmanager_group_entries.displayname AS 'name'
+                    ,contactmanager_entry_numbers.number AS 'extension' 
+                    ,contactmanager_groups.id as 'gid'
+                    ,contactmanager_entry_numbers.type as 'teltype'
+                    ,contactmanager_group_entries.lname
+                    ,contactmanager_group_entries.fname 
                 FROM contactmanager_groups 
                 LEFT JOIN contactmanager_group_entries ON contactmanager_groups.id = contactmanager_group_entries.groupid
                 LEFT JOIN contactmanager_entry_numbers ON contactmanager_group_entries.id = contactmanager_entry_numbers.entryid 

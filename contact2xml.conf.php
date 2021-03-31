@@ -14,6 +14,11 @@ static $FETCH_TIME = 30;
 // XML Store filename.
 static $FILENAME = 'phonebook.xml';
 
+//MODE1 
+// 0 = display Name
+// 1 = Surname,LastName
+define( "MODE1" , 0 );
+
 // Account Index SIP-LINE
 // $ACCOUNTIDX[**GroupID**] = SIP-LINE NUMBER;
 // $ACCOUNTIDX[5] = 2;
