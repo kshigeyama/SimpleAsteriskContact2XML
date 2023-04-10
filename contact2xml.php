@@ -6,7 +6,7 @@
  * Copyright(C) 2021 kshigeyama.
  * 
  */
-require_once("contact2xml.conf");
+require_once("contact2xml.con.php");
 require_once("contact2xml.class.php");
 
 $url = "http://".$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
@@ -34,6 +34,13 @@ if( !is_numeric($MODE1) ){
 switch($BRAND_TYPE){
     case "gs": // GRANDSTREAM
         //$sXML = createXMLPhoneBook_gs( $FETCH_TIME, $FORCE_FLAG , $FILENAME );
+        $oXMLContact = new createXMLPhoneBook_gs();
+        $sXML = $oXMLContact->getXML($FORCE_FLAG, $MODE1);
+        break;
+    case "gs3000": // GRANDSTREAM
+        foreach($ACCOUNTIDX as $i => $v) {
+            $ACCOUNTIDX[$i] = $v - 1;
+        }
         $oXMLContact = new createXMLPhoneBook_gs();
         $sXML = $oXMLContact->getXML($FORCE_FLAG, $MODE1);
         break;

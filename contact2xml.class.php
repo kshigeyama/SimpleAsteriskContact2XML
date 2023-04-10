@@ -27,6 +27,7 @@ class createXMLPhoneBook_gs extends XMLPhoneBook {
                 $directoryGroup = $xml -> addChild('pbgroup');
                 $directoryGroup -> addChild('name', $oResult1[$row][2]);
                 $directoryGroup -> addChild('id', $oResult1[$row][0]);
+                $directoryGroup -> addChild('Ringtone');
             }
         }
 
