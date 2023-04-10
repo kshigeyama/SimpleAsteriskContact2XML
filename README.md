@@ -1,6 +1,6 @@
 # SimpleAsteriskContact2XML
 
-Asterisk/FreePBXのContactをXMLに吐き出すツール(GrandStreamのみ対応)
+Asterisk/FreePBXのContactをXMLに吐き出すツール(現在、GrandStreamのみ対応)
 
 ## サマリー
 
@@ -12,11 +12,19 @@ Asterisk/FreePBXのContactをXMLに吐き出すツール(GrandStreamのみ対応
 
 > http://freepbx.local/pb/contact2xml.php
 
-という感じです。強制的にデータを取得する場合は
+という感じです。
+
+### 毎回データを取得する場合(強制取得))
+
+初期状態では、30分に一回程度データを取得し、XMLファイルとしてキャッシュします。しかし、それが上手くいかない場合や、常に最新の情報を取得したい場合は、は次のようにしてください。
+
+強制的にデータを取得する場合は
 
 > http://freepbx.local/pb/contact2xml.php?FORCE=1
 
 としてください。
+
+### 表示データの取得について
 
 初期状態では、ディスプレイネームを取得表示しています。これを姓・名で取得表示するには、
 
@@ -28,6 +36,21 @@ Asterisk/FreePBXのContactをXMLに吐き出すツール(GrandStreamのみ対応
 >
 > ( by contact2xml.conf)
 
+### GrandStream GXP1xxx /  GXP2xxx と GVX3xxx の設定について
+
+GrandStream GXP1xxx /  GXP2xxxは
+
+TYPE=gs
+
+GVX3xxxは
+
+TYPE=gs3000
+
+とURLに渡してください。具体的には、
+
+> http://freepbx.local/pb/contact2xml.php?FORCE=1&TYPE=gs3000define("MODE1",1
+
+となります。
 
 ### 利用者が変更するところ
 
@@ -50,7 +73,6 @@ accountindexに対応する部分です。添え字([]の中のx)には、グル
 　このプログラムは、生成したXMLをファイルとして保存します。初期状態では、30分以内の取り合わせに対しては、ファイルのXMLを返します。それを超えた場合、またはFORCE引数を与えた場合はAsteriskのデータベースから取得してXMLを返します。
 
 　混在環境の場合は、件数が多い取得をキャッシュ利用するか、ディレクトリを切って複数設置するなど対応してください。リクエスト数が少ない場合は、引数で制御してもさほど問題は無いかと思います。
-
 
 ## 制限事項・注意事項
 
