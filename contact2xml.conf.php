@@ -19,6 +19,12 @@ static $FILENAME = 'phonebook.xml';
 // 1 = Surname,LastName
 define( "MODE1" , 0 );
 
+
+//
+// Default AccoutIDX set SIP-LINE No.
+//
+$DEFAULT_ACCOUNTIDX = 1;
+
 // Account Index SIP-LINE
 // $ACCOUNTIDX[**GroupID**] = SIP-LINE NUMBER;
 // $ACCOUNTIDX[5] = 2;

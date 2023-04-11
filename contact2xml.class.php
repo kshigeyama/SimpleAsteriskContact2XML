@@ -9,7 +9,7 @@
 
 class createXMLPhoneBook_gs extends XMLPhoneBook {
     public function fetchData( $FORCE_FLAG = 0 , $MODE1 = 0 ){
-        global $FILENAME, $ACCOUNTIDX;
+        global $FILENAME, $ACCOUNTIDX, $DEFAULT_ACCOUNTIDX;
 
         $oResult1 = $this->getGroup();
         $oResult2 = $this->getContactBody();
@@ -49,7 +49,7 @@ class createXMLPhoneBook_gs extends XMLPhoneBook {
                 $directoryPhone -> addChild('phonenumber', $oResult2[$row][1]);
                 $accountIndex = $ACCOUNTIDX[ intval($oResult2[$row][2]) ];
                 if(is_null($accountIndex)){
-                    $accountIndex = 1;
+                    $accountIndex = $DEFAULT_ACCOUNTIDX;
                 }
                 $directoryPhone -> addChild('accountindex', $accountIndex);
 
@@ -60,7 +60,7 @@ class createXMLPhoneBook_gs extends XMLPhoneBook {
                     $directoryPhone -> addChild('phonenumber', $oResult2[$row][1]);
                     $accountIndex = $ACCOUNTIDX[$oResult2[$row][2]];
                     if(!is_numeric($accountIndex)){
-                        $accountIndex = 1;
+                        $accountIndex = $DEFAULT_ACCOUNTIDX;
                     }
                     $directoryPhone -> addChild('accountindex', 1);
                 }
@@ -72,7 +72,7 @@ class createXMLPhoneBook_gs extends XMLPhoneBook {
                     $directoryPhone -> addChild('phonenumber', $oResult2[$row][1]);
                     $accountIndex = $ACCOUNTIDX[$oResult2[$row][2]];
                     if(!is_numeric($accountIndex)){
-                        $accountIndex = 1;
+                        $accountIndex = $DEFAULT_ACCOUNTIDX;
                     }
                     $directoryPhone -> addChild('accountindex', $accountIndex);
                 }
@@ -96,7 +96,7 @@ class createXMLPhoneBook_gs extends XMLPhoneBook {
             case "work":
                 return "Work";
             default:
-                return "";
+                return "Cell";
         }
    }
 
