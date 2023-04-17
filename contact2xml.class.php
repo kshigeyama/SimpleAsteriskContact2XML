@@ -8,8 +8,10 @@
  */
 
 class createXMLPhoneBook_gs extends XMLPhoneBook {
-    public function fetchData( $FORCE_FLAG = 0 , $MODE1 = 0 ){
+    public function fetchData( $FORCE_FLAG , $MODE1 , $SeekKey, $GPID ){
         global $FILENAME, $ACCOUNTIDX, $DEFAULT_ACCOUNTIDX;
+
+        $iTmpGroupID = 0;
 
         $oResult1 = $this->getGroup();
         $oResult2 = $this->getContactBody();
@@ -23,7 +25,8 @@ class createXMLPhoneBook_gs extends XMLPhoneBook {
         $numrows1 = count($oResult1);
         $row = 0;
         for ($row = 0 ; $row < $numrows1 ; $row++) {
-            if (!is_null($oResult1[$row][0])) {
+            $iTmpGroupID = $oResult1[$row][0] * 1;
+            if( is_null($GPID) || $this->isGPIDchecker( $GPID, $iTmpGroupID ) ){
                 $directoryGroup = $xml -> addChild('pbgroup');
                 $directoryGroup -> addChild('name', $oResult1[$row][2]);
                 $directoryGroup -> addChild('id', $oResult1[$row][0]);
@@ -36,45 +39,52 @@ class createXMLPhoneBook_gs extends XMLPhoneBook {
         $row = 0;
         for ($row = 0 ; $row < $numrows2 ; $row++) {
             if (!is_null($oResult2[$row][0])) {
-                $directoryEntry = $xml -> addChild('Contact');
-                if( $MODE1 == 0 ){
-                    $directoryEntry -> addChild('LastName', $oResult2[$row][0]);
-                } elseif( $MODE1 == 1 ){
-                    $directoryEntry -> addChild('LastName', $oResult2[$row][4]);
-                    $directoryEntry -> addChild('FirstName', $oResult2[$row][5]);
-                }
-                $directoryEntry -> addChild('Group', $oResult2[$row][2]);
-                $directoryPhone  = $directoryEntry -> addChild('Phone');
-                $directoryPhone -> addAttribute('Type', $this->PhoneTypeConvert($oResult2[$row][3]));
-                $directoryPhone -> addChild('phonenumber', $oResult2[$row][1]);
-                $accountIndex = $ACCOUNTIDX[ intval($oResult2[$row][2]) ];
-                if(is_null($accountIndex)){
-                    $accountIndex = $DEFAULT_ACCOUNTIDX;
-                }
-                $directoryPhone -> addChild('accountindex', $accountIndex);
-
-                if( $oResult2[$row][0] == $oResult2[$row+1][0]){
-                    $row++;
+                $iTmpGroupID = $oResult2[$row][2] * 1;
+                if( is_null($GPID) || $this->isGPIDchecker( $GPID, $iTmpGroupID ) ){
+                    $directoryEntry = $xml -> addChild('Contact');
+                    if( $MODE1 == 0 ){
+                        $directoryEntry -> addChild('LastName', $oResult2[$row][0]);
+                    } elseif( $MODE1 == 1 ){
+                        $directoryEntry -> addChild('LastName', $oResult2[$row][4]);
+                        $directoryEntry -> addChild('FirstName', $oResult2[$row][5]);
+                    }
+                    
+                    $directoryEntry -> addChild('Group', $oResult2[$row][2]);
                     $directoryPhone  = $directoryEntry -> addChild('Phone');
                     $directoryPhone -> addAttribute('Type', $this->PhoneTypeConvert($oResult2[$row][3]));
                     $directoryPhone -> addChild('phonenumber', $oResult2[$row][1]);
-                    $accountIndex = $ACCOUNTIDX[$oResult2[$row][2]];
+                    $accountIndex = $ACCOUNTIDX[ intval($oResult2[$row][2]) ];
                     if(!is_numeric($accountIndex)){
                         $accountIndex = $DEFAULT_ACCOUNTIDX;
                     }
-                    $directoryPhone -> addChild('accountindex', 1);
-                }
-
-                if( $oResult2[$row][0] == $oResult2[$row+1][0]){
-                    $row++;
-                    $directoryPhone  = $directoryEntry -> addChild('Phone');
-                    $directoryPhone -> addAttribute('Type', $this->PhoneTypeConvert($oResult2[$row][3]));
-                    $directoryPhone -> addChild('phonenumber', $oResult2[$row][1]);
-                    $accountIndex = $ACCOUNTIDX[$oResult2[$row][2]];
-                    if(!is_numeric($accountIndex)){
-                        $accountIndex = $DEFAULT_ACCOUNTIDX;
-                    }
+                    $accountIndex = $accountIndex + $SeekKey;
                     $directoryPhone -> addChild('accountindex', $accountIndex);
+
+                    if( $oResult2[$row][0] == $oResult2[$row+1][0]){
+                        $row++;
+                        $directoryPhone  = $directoryEntry -> addChild('Phone');
+                        $directoryPhone -> addAttribute('Type', $this->PhoneTypeConvert($oResult2[$row][3]));
+                        $directoryPhone -> addChild('phonenumber', $oResult2[$row][1]);
+                        $accountIndex = $ACCOUNTIDX[$oResult2[$row][2]];
+                        if(!is_numeric($accountIndex)){
+                            $accountIndex = $DEFAULT_ACCOUNTIDX;
+                        }
+                        $accountIndex = $accountIndex + $SeekKey;
+                        $directoryPhone -> addChild('accountindex', $accountIndex);
+                    }
+
+                    if( $oResult2[$row][0] == $oResult2[$row+1][0]){
+                        $row++;
+                        $directoryPhone  = $directoryEntry -> addChild('Phone');
+                        $directoryPhone -> addAttribute('Type', $this->PhoneTypeConvert($oResult2[$row][3]));
+                        $directoryPhone -> addChild('phonenumber', $oResult2[$row][1]);
+                        $accountIndex = $ACCOUNTIDX[$oResult2[$row][2]];
+                        if(!is_numeric($accountIndex)){
+                            $accountIndex = $DEFAULT_ACCOUNTIDX;
+                        }
+                        $accountIndex = $accountIndex + $SeekKey;
+                        $directoryPhone -> addChild('accountindex', $accountIndex);
+                    }
                 }
             }
         }
@@ -98,14 +108,14 @@ class createXMLPhoneBook_gs extends XMLPhoneBook {
             default:
                 return "Cell";
         }
-   }
+    }
 
 } // end of createXMLPhoneBook_gs
 
 
 class XMLPhoneBook{
 
-    public function cacheCheck( $FORCE_FLAG = 0 ){
+    public function cacheCheck( $FORCE_FLAG ){
         global $FILENAME, $FETCH_TIME ;
         if( $FORCE_FLAG != 1 ){
             if (file_exists($FILENAME)) {
@@ -119,17 +129,26 @@ class XMLPhoneBook{
                 }
 
             }
+        } else {
+            return false;
         }
     }
 
-    public function getXML( $FORCE_FLAG = 0 , $MODE1 = 0 ){
+    public function getXML( $FORCE_FLAG = 0 , $MODE1 = 0 , $SeekKey = 0 , $GPID = NULL ){
         global $FILENAME;
-        if( $this->cacheCheck( $FORCE_FLAG ) ){
-            $xml = file_get_contents( $FILENAME );
-            return ($xml); 
+
+        if( $FORCE_FLAG == 0 ){
+            if( $this->cacheCheck( $FORCE_FLAG ) ){
+                $xml = file_get_contents( $FILENAME );
+                return ($xml); 
+            }
         } else {
-            return $this->fetchData( $FORCE_FLAG , $MODE1 );
+            return $this->fetchData( $FORCE_FLAG , $MODE1 , $SeekKey, $GPID );
         }
+    }
+
+    public function isGPIDchecker( $GPID, $tmpID ){
+        return in_array( $tmpID, $GPID, false );
     }
 
     Protected function getGroup(){

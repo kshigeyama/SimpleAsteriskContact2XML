@@ -14,13 +14,21 @@ Asterisk/FreePBXのContactをXMLに吐き出すツール(現在、GrandStreamの
 
 という感じです。
 
+
+### 次節以降のように、URL引数を渡す場合の注意点
+
+URL引数を渡す場合、最後に&EOFを付けてください。付けない場合は、正常に動作しません。これは、GRANDSTREAM電話機が、URLに/phonebook.xmlと自動で付与するためです。当システムでは、ファイル名独自指定は機能的に予約しているため、特段対処は起きないません。
+
+URL引数を渡す場合、最後に&EOFを付けてください。
+
+
 ### 毎回データを取得する場合(強制取得))
 
 初期状態では、30分に一回程度データを取得し、XMLファイルとしてキャッシュします。しかし、それが上手くいかない場合や、常に最新の情報を取得したい場合は、は次のようにしてください。
 
 強制的にデータを取得する場合は
 
-> http://freepbx.local/pb/contact2xml.php?FORCE=1
+> http://freepbx.local/pb/contact2xml.php?FORCE=1&EOF
 
 としてください。
 
@@ -28,7 +36,7 @@ Asterisk/FreePBXのContactをXMLに吐き出すツール(現在、GrandStreamの
 
 初期状態では、ディスプレイネームを取得表示しています。これを姓・名で取得表示するには、
 
-> http://freepbx.local/pb/contact2xml.php?MODE1=1
+> http://freepbx.local/pb/contact2xml.php?MODE1=1&EOF
 
 とするか、定義ファイルのMODE1を1にしてください。
 
@@ -48,9 +56,40 @@ TYPE=gs3000
 
 とURLに渡してください。具体的には、
 
-> http://freepbx.local/pb/contact2xml.php?FORCE=1&TYPE=gs3000define("MODE1",1
+> http://freepbx.local/pb/contact2xml.php?FORCE=1&TYPE=gs3000&EOF
 
 となります。
+
+### 取得する連絡先グループの指定の方法
+
+GPID[]=1
+
+などURLに指定してください。複数指定することが出来ます。そのときは、
+
+GPID[]=1&GPID[]=6
+
+というようになります。
+
+具体的には、
+
+> http://freepbx.local/pb/contact2xml.php?FORCE=1&TYPE=gs3000&GPID[]=1&GPID[]=6&EOF
+
+となります。
+
+### 内線番号とSIP-LINE IDが混在する環境で、連絡先グループにデフォルト内線番号(SIP-LINE ID)を割り当てる方法
+
+連絡先グループのコード5番をSIP-LINE ID 1に割り当てる場合は、
+
+ACID[5]=1
+
+等と指定してください。これにより、設定ファイルの内容より優先して適用されます。
+
+具体的には、
+
+> http://freepbx.local/pb/contact2xml.php?FORCE=1&TYPE=gs3000&GPID[]=1&GPID[]=6&ACID[5]=1&EOF
+
+となります。
+
 
 ### 利用者が変更するところ
 
@@ -64,12 +103,9 @@ contact2xml.confファイルの次の行を適宜変更してください。
 
 XMLの一時記録ファイル名。
 
-
-
 | $DEFAULT_ACCOUNTIDX = 1;
 
 　ACCOUNTIDXを設定しない場合、どのSIP内線番号に割り当てるかを指定します。1始まり。
-
 
 > ACCOUNTIDX[x] = y;
 

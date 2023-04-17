@@ -8,6 +8,10 @@
  */
 
 /* configration start  */
+// URL Scheme
+define( "URL_SHCEME" , 'http://' );
+
+
 // minite
 static $FETCH_TIME = 30;
 
