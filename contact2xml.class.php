@@ -53,14 +53,20 @@ class createXMLPhoneBook_gs extends XMLPhoneBook {
                     $directoryPhone  = $directoryEntry -> addChild('Phone');
                     $directoryPhone -> addAttribute('Type', $this->PhoneTypeConvert($oResult2[$row][3]));
                     $directoryPhone -> addChild('phonenumber', $oResult2[$row][1]);
-                    $accountIndex = $ACCOUNTIDX[ intval($oResult2[$row][2]) ];
+                    if( isset( $ACCOUNTIDX[ intval($oResult2[$row][2]) ] ) ){
+                        $accountIndex = $ACCOUNTIDX[ intval($oResult2[$row][2]) ];
+                    } else {
+                        $ACCOUNTIDX[ intval($oResult2[$row][2]) ] = $DEFAULT_ACCOUNTIDX;
+                        $accountIndex = $DEFAULT_ACCOUNTIDX;
+                    }
+                    
                     if(!is_numeric($accountIndex)){
                         $accountIndex = $DEFAULT_ACCOUNTIDX;
                     }
                     $accountIndex = $accountIndex + $SeekKey;
                     $directoryPhone -> addChild('accountindex', $accountIndex);
 
-                    if( $oResult2[$row][0] == $oResult2[$row+1][0]){
+                    if( isset($oResult2[$row+1][0]) && $oResult2[$row][0] == $oResult2[$row+1][0]){
                         $row++;
                         $directoryPhone  = $directoryEntry -> addChild('Phone');
                         $directoryPhone -> addAttribute('Type', $this->PhoneTypeConvert($oResult2[$row][3]));
@@ -73,7 +79,7 @@ class createXMLPhoneBook_gs extends XMLPhoneBook {
                         $directoryPhone -> addChild('accountindex', $accountIndex);
                     }
 
-                    if( $oResult2[$row][0] == $oResult2[$row+1][0]){
+                    if(  isset($oResult2[$row+1][0]) && $oResult2[$row][0] == $oResult2[$row+1][0]){
                         $row++;
                         $directoryPhone  = $directoryEntry -> addChild('Phone');
                         $directoryPhone -> addAttribute('Type', $this->PhoneTypeConvert($oResult2[$row][3]));
